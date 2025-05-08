@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: POPDCU-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: popdcu_db
+    ports:
+      - "5433:5432"  # PostgreSQL 외부 포트를 5433으로 변경
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: POPDCU-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5051:80"  # pgAdmin 외부 포트를 5051로 설정
+    depends_on:
+      - postgres
+      
+  backend:
+    build: 
+      context: ../POPDCU_Back/POPDCU-Back
+      dockerfile: Dockerfile
+    container_name: POPDCU-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/popdcu_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  pgadmin_data:
