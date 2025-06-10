@@ -30,11 +30,9 @@ services:
     networks:
       - popdcu-network
       
-  # 백엔드 서비스
+  # 백엔드 서비스 (Docker Hub 이미지 사용)
   backend:
-    build: 
-      context: ../POPDCU_Back/POPDCU-Back
-      dockerfile: Dockerfile
+    image: backgroundmin/popdcu-backend:latest
     container_name: POPDCU-backend
     ports:
       - "8080:8080"
@@ -43,19 +41,20 @@ services:
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: admin
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      PORT: 8080
     depends_on:
       - postgres
     networks:
       - popdcu-network
   
-  # 프론트엔드 서비스
+  # 프론트엔드 서비스 (Docker Hub 이미지 사용)
   frontend:
-    build:
-      context: ../POPDCU_Front
-      dockerfile: Dockerfile
+    image: backgroundmin/popdcu-frontend:latest
     container_name: POPDCU-frontend
     ports:
       - "80:80"
+    environment:
+      BACKEND_URL: http://backend:8080  # Docker Compose 내부 네트워크에서 backend 서비스로 연결
     depends_on:
       - backend
     networks:
